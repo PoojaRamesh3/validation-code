@@ -12,8 +12,12 @@ const Form = () => {
 
   const handleChange = (event: any) => {
     //ignoring 1st letter recieved as char
+
     if (event.target.value.charAt(0) !== " ") {
-      setLoginInfo({ ...loginInfo, [event.target.name]: event.target.value });
+      setLoginInfo({
+        ...loginInfo,
+        [event.target.name]: event.target.value,
+      });
     }
   };
 
@@ -27,7 +31,7 @@ const Form = () => {
     if (!value.email) {
       errors.email = "Email cannot be Empty";
     } else if (!value.email.match(mailFormat)) {
-      errors.email = "Email should include @";
+      errors.emailInvalid = "Please Enter valid Email id";
     }
 
     if (!value.password) {
@@ -65,7 +69,10 @@ const Form = () => {
         name="email"
         onChange={(e) => handleChange(e)}
       />
-      <div style={{ color: "red" }}>{formError.email}</div>
+      <div style={{ color: "red" }}>
+        {formError.email}
+        {formError.emailInvalid}
+      </div>
 
       <input
         type="password"
