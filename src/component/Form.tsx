@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Form = () => {
   const [loginInfo, setLoginInfo] = useState<any>({
@@ -7,73 +7,77 @@ const Form = () => {
     password: "",
   });
 
-  const [checkName, setCheckName] = useState("");
-  const [validName, setValidName] = useState(false);
+  const [formError, setFormError] = useState<any>({});
+  const [submit, setSubmit] = useState(false);
 
-  const [checkEmail, setCheckEmail] = useState("");
-  const [validEmail, setValidEmail] = useState(false);
-
-  const [checkPassword, setCheckPassword] = useState("");
-  const [validPassword, setValidPassword] = useState(false);
-
-  const submitHandler = (event: any) => {
-    event.preventDefault();
-    if (loginInfo.name === "") {
-      setValidName(true);
-      setCheckName("Name cannot be empty");
-    } else if (loginInfo.name !== "") {
-      setValidName(true);
+  const handleChange = (event: any) => {
+    //ignoring 1st letter recieved as char
+    if (event.target.value.charAt(0) !== " ") {
+      setLoginInfo({ ...loginInfo, [event.target.name]: event.target.value });
     }
-    if (loginInfo.email === "") {
-      setValidEmail(true);
-      setCheckEmail("Email cannot be empty");
-    }
-    if (loginInfo.password === "") {
-      setValidPassword(true);
-      setCheckPassword("Password cannot be empty");
-    }
-    // if (
-    //   loginInfo.name.startsWith(" ") ||
-    //   loginInfo.email.startsWith(" ") ||
-    //   loginInfo.password.startsWith(" ")
-    // ) {
-    //   alert("first char cannot be space");
-    //   return;
-    // }
   };
+
+  const validate = (value: any) => {
+    const mailFormat = /\S+@\S+\.\S+/;
+    const errors: any = {};
+    if (!value.name) {
+      errors.name = "Name cannot be Empty";
+    }
+
+    if (!value.email) {
+      errors.email = "Email cannot be Empty";
+    } else if (!value.email.match(mailFormat)) {
+      errors.email = "Email should include @";
+    }
+
+    if (!value.password) {
+      errors.password = "Password cannot be Empty";
+    }
+
+    return errors;
+  };
+
+  const submitHandler = () => {
+    setFormError(validate(loginInfo));
+    setSubmit(true);
+  };
+
+  useEffect(() => {
+    if (Object.keys(formError).length === 0 && submit) {
+      alert("Success");
+    }
+  }, [formError]);
 
   return (
     <form onSubmit={submitHandler}>
       <input
         type="text"
         placeholder="Name"
+        value={loginInfo.name}
         name="name"
-        onChange={(e) => setLoginInfo(e.target.value)}
+        onChange={(e) => handleChange(e)}
       />
-      {validName === true && <div style={{ color: "red" }}>{checkName}</div>}
-      <br />
-      <br />
+      <div style={{ color: "red" }}>{formError.name}</div>
+
       <input
         type="email"
         placeholder="Email"
         name="email"
-        onChange={(e) => setLoginInfo(e.target.value)}
+        onChange={(e) => handleChange(e)}
       />
-      {validEmail === true && <div style={{ color: "red" }}>{checkEmail}</div>}
-      <br />
-      <br />
+      <div style={{ color: "red" }}>{formError.email}</div>
+
       <input
         type="password"
         placeholder="Password"
         name="password"
-        onChange={(e) => setLoginInfo(e.target.value)}
+        onChange={(e) => handleChange(e)}
       />
-      {validPassword === true && (
-        <div style={{ color: "red" }}>{checkPassword}</div>
-      )}
-      <br />
-      <br />
-      <button type="submit">SUBMIT</button>
+      <div style={{ color: "red" }}>{formError.password}</div>
+
+      <button onClick={() => submitHandler()} type="button">
+        SUBMIT
+      </button>
     </form>
   );
 };
